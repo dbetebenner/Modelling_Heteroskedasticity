@@ -1,0 +1,49 @@
+---
+title: "Modelling Heteroskedasticity"
+---
+
+Heteroskedastic data (data with non-constant variability across the range of one or more independent variables) occurs in numerous contexts. 
+Using ordinary least squares regression can obscure important features of the relationship between the independent and dependent variable.
+
+```{r}
+library(quantreg)
+library(splines)
+
+## Generate a simple dataset with heteroskedasticity
+x <- seq(0, 1, length=1000)
+y <- -.25*x + 1 + rnorm(1000, sd=seq(0.02, 0.25, length=1000))
+y[y >= 1.1] <- 1.1 + rnorm(length(y[y >= 1.1]), sd=0.03)
+lm.1 <- lm(y ~ x)
+lm.1.splines <- lm(y ~ bs(x))
+qr.1 <- rq(y ~ x, tau=1:9/10)
+qr.1.splines <- rq(y ~ bs(x), tau=1:9/10)
+```
+
+
+::: panel-tabset 
+#| results: asis
+#| fig-width: 8
+#| fig-height: 6
+
+## Data
+
+```{r}
+plot(x, y)
+
+```
+## Linear Fit
+
+```{r}
+plot(x, y)
+abline(lm.1, col="red")
+abline(qr.1, col="blue")
+
+```
+
+## Spline Fit
+
+```{r}
+
+
+```
+:::
