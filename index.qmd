@@ -43,7 +43,8 @@ abline(qr.1, col="blue")
 ## Spline Fit
 
 ```{r}
-
-
+plot(x, y)
+abline(lm.1, col="red")
+abline(qr.1, col="blue")
 ```
 :::
