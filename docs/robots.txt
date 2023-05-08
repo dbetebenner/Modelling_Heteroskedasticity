@@ -1,0 +1,1 @@
+Sitemap: https://dbetebenner.github.io/Modelling_Heteroskedasticity/sitemap.xml
