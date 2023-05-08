@@ -13,13 +13,13 @@ website:
   repo-url: "https://github.com/dbetebenner/Modelling_Heteroskedasticity"
   title: "Modelling non-linear, heteroskedastic data using R"
   repo-actions: [edit, issue]
-  favicon: ./assets/img/logo_color.png
+  favicon: ./images/cfa_logo_color.png
 
   # navigation
   page-navigation: true
   navbar:
     title: "Modelling Heteroskedasticity"
-    logo: ./assets/img/logo_grey.png
+    logo: ./images/cfa_logo_grey.png
     logo-href: "https://dbetebenner.github.io/Modelling_Heteroskedasticity"
     search: false
     pinned: true
@@ -55,11 +55,11 @@ format:
   html:
     theme:
      - cosmo
-     - ./assets/css/custom.scss
-    css: ./assets/css/styles.css
+     - ./css/custom.scss
+    css: ./css/styles.css
     toc: true
     include-after: |
       <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:400,600" rel="stylesheet" type="text/css">
       <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-      <script type="text/javascript" src="/assets/js/jquery.sticky-kit.min.js"></script>
-      <script type="text/javascript" src="/assets/js/scroll.js"></script>
+      <script type="text/javascript" src="/js/jquery.sticky-kit.min.js"></script>
+      <script type="text/javascript" src="/js/scroll.js"></script>
