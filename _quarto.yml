@@ -11,7 +11,7 @@ exectute:
 website:
   site-url: "https://dbetebenner.github.io/Modelling_Heteroskedasticity/"
   repo-url: "https://github.com/dbetebenner/Modelling_Heteroskedasticity"
-  title: "Effective Data Visualization with R"
+  title: "Modelling non-linear, heteroskedastic data using R"
   repo-actions: [edit, issue]
   favicon: ./assets/img/logo_color.png
 
