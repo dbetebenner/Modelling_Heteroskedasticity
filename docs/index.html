@@ -175,7 +175,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>Heteroskedastic data (data with non-constant variability across the range of one or more independent variables) occurs in numerous contexts. Using ordinary least squares regression can obscure important features of the relationship between the independent and dependent variable.</p>
+<p>Heteroskedastic data (data with non-constant variability across the range of one or more independent variables) occurs in numerous contexts. Using ordinary least squares regression can obscure important features of the relationship between the independent and dependent variable. Ordinary least squares regression assumes data follows a linear trend and that it is homoskedastic across the range of the independent variable(s). Strictly, this is rarely ever the case but the differences obtained from modelling using techniques that relax these assumptions is not large.</p>
+<p>However, when data is demonstrably non-linear and/or heteroskedastistic, one can utilize quantile regression together with splines to model the entire distribution. The quantile regression allows one to examine heteroskasticitiy and the splines allow one to model any non-linearity.</p>
+<p>To illustrate I’ve created some simulated some heteroskedastic data and then fit the data using both OLS (red) and quantile regression (blue). The quantile regression is fit at the deciles (0.1, 0.2, 0.3, …, 0.9 quantiles). Whereas the OLS line models the conditional mean of the distribution, quantile regression models the conditional quantile. The most common quantile regression fit is for the conditional median, which is often quite close to the conditional mean.</p>
+<p>In addition, we model the data parametrically using lines as well as non-parametrically using splines. The simulated data was not created to include a lot of non-linearity, so the impact of fitting with splines is modest. However, other data may show more dramatic differences.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(quantreg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -197,9 +200,13 @@ Attaching package: 'SparseM'</code></pre>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="sc">-</span>.<span class="dv">25</span><span class="sc">*</span>x <span class="sc">+</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1000</span>, <span class="at">sd=</span><span class="fu">seq</span>(<span class="fl">0.02</span>, <span class="fl">0.25</span>, <span class="at">length=</span><span class="dv">1000</span>))</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>y[y <span class="sc">&gt;=</span> <span class="fl">1.1</span>] <span class="ot">&lt;-</span> <span class="fl">1.1</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">length</span>(y[y <span class="sc">&gt;=</span> <span class="fl">1.1</span>]), <span class="at">sd=</span><span class="fl">0.03</span>)</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>lm<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>lm.<span class="fl">1.</span>splines <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="fu">bs</span>(x))</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>qr<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">rq</span>(y <span class="sc">~</span> x, <span class="at">tau=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">9</span><span class="sc">/</span><span class="dv">10</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>qr.<span class="fl">1.</span>splines <span class="ot">&lt;-</span> <span class="fu">rq</span>(y <span class="sc">~</span> <span class="fu">bs</span>(x), <span class="at">tau=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">9</span><span class="sc">/</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>lm.<span class="fl">1.</span>predict <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm<span class="fl">.1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>lm.<span class="fl">1.</span>splines <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> <span class="fu">bs</span>(x))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>lm.<span class="fl">1.</span>splines.predict <span class="ot">&lt;-</span> <span class="fu">predict</span>(lm.<span class="fl">1.</span>splines)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>qr<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">rq</span>(y <span class="sc">~</span> x, <span class="at">tau=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">9</span><span class="sc">/</span><span class="dv">10</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>qr.<span class="fl">1.</span>predict <span class="ot">&lt;-</span> <span class="fu">predict</span>(qr<span class="fl">.1</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>qr.<span class="fl">1.</span>splines <span class="ot">&lt;-</span> <span class="fu">rq</span>(y <span class="sc">~</span> <span class="fu">bs</span>(x), <span class="at">tau=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">9</span><span class="sc">/</span><span class="dv">10</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>qr.<span class="fl">1.</span>splines.predict <span class="ot">&lt;-</span> <span class="fu">predict</span>(qr.<span class="fl">1.</span>splines)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Data</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Linear Fit</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Spline Fit</a></li></ul>
@@ -215,11 +222,10 @@ Attaching package: 'SparseM'</code></pre>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(lm<span class="fl">.1</span>, <span class="at">col=</span><span class="st">"red"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(qr<span class="fl">.1</span>, <span class="at">col=</span><span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in abline(qr.1, col = "blue"): only using the first two of 18 regression coefficients</code></pre>
-</div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(x, lm.<span class="fl">1.</span>predict, <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"red"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col.iter <span class="cf">in</span> <span class="fu">seq</span>(<span class="fu">ncol</span>(qr.<span class="fl">1.</span>predict))) {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">points</span>(x, qr.<span class="fl">1.</span>predict[,col.iter], <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"blue"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -227,12 +233,11 @@ Attaching package: 'SparseM'</code></pre>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(lm<span class="fl">.1</span>, <span class="at">col=</span><span class="st">"red"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(qr<span class="fl">.1</span>, <span class="at">col=</span><span class="st">"blue"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in abline(qr.1, col = "blue"): only using the first two of 18 regression coefficients</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, y)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(x, lm.<span class="fl">1.</span>splines.predict, <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"red"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (col.iter <span class="cf">in</span> <span class="fu">seq</span>(<span class="fu">ncol</span>(qr.<span class="fl">1.</span>predict))) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">points</span>(x, qr.<span class="fl">1.</span>splines.predict[,col.iter], <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"blue"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
 </div>

@@ -4,6 +4,20 @@ title: "Modelling Heteroskedasticity"
 
 Heteroskedastic data (data with non-constant variability across the range of one or more independent variables) occurs in numerous contexts. 
 Using ordinary least squares regression can obscure important features of the relationship between the independent and dependent variable.
+Ordinary least squares regression assumes data follows a linear trend and that it is homoskedastic across the range of the independent variable(s).
+Strictly, this is rarely ever the case but the differences obtained from modelling using techniques that relax these assumptions is not large.
+
+However, when data is demonstrably non-linear and/or heteroskedastistic, one can utilize quantile regression together with splines to model the
+entire distribution. The quantile regression allows one to examine heteroskasticitiy and the splines allow one to model any non-linearity.
+
+To illustrate I've created some simulated some heteroskedastic data and then fit the data using both OLS (red) and quantile regression (blue).
+The quantile regression is fit at the deciles (0.1, 0.2, 0.3, ..., 0.9 quantiles). Whereas the OLS line models the conditional mean of the
+distribution, quantile regression models the conditional quantile. The most common quantile regression fit is for the conditional median, which is
+often quite close to the conditional mean. 
+
+In addition, we model the data parametrically using lines as well as non-parametrically using splines. The simulated data was not created to include
+a lot of non-linearity, so the impact of fitting with splines is modest. However, other data may show more dramatic differences.
+
 
 ```{r}
 library(quantreg)
@@ -14,9 +28,13 @@ x <- seq(0, 1, length=1000)
 y <- -.25*x + 1 + rnorm(1000, sd=seq(0.02, 0.25, length=1000))
 y[y >= 1.1] <- 1.1 + rnorm(length(y[y >= 1.1]), sd=0.03)
 lm.1 <- lm(y ~ x)
+lm.1.predict <- predict(lm.1)
 lm.1.splines <- lm(y ~ bs(x))
+lm.1.splines.predict <- predict(lm.1.splines)
 qr.1 <- rq(y ~ x, tau=1:9/10)
+qr.1.predict <- predict(qr.1)
 qr.1.splines <- rq(y ~ bs(x), tau=1:9/10)
+qr.1.splines.predict <- predict(qr.1.splines)
 ```
 
 
@@ -35,8 +53,10 @@ plot(x, y)
 
 ```{r}
 plot(x, y)
-abline(lm.1, col="red")
-abline(qr.1, col="blue")
+points(x, lm.1.predict, type="l", col="red")
+for (col.iter in seq(ncol(qr.1.predict))) {
+    points(x, qr.1.predict[,col.iter], type="l", col="blue")
+}
 
 ```
 
@@ -44,7 +64,9 @@ abline(qr.1, col="blue")
 
 ```{r}
 plot(x, y)
-abline(lm.1, col="red")
-abline(qr.1, col="blue")
+points(x, lm.1.splines.predict, type="l", col="red")
+for (col.iter in seq(ncol(qr.1.predict))) {
+    points(x, qr.1.splines.predict[,col.iter], type="l", col="blue")
+}
 ```
 :::
